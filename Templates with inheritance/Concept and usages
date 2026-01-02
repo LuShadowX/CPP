@@ -1,0 +1,139 @@
+Phase 3: Class Templates with Inheritance
+
+There are three main ways these two concepts interact. I will explain them one by one.
+1. Inheriting from a Non-Template Class (Standard Parent)
+
+A template class can inherit from a regular, non-template class. This is useful when you have a general base that doesn't need generic types.
+
+class Base {
+public:
+    void greet() { cout << "Hello from Base!" << endl; }
+};
+
+template <typename T>
+class Derived : public Base {
+public:
+    T data;
+};
+
+// Usage: Derived<int> obj; obj.greet();
+
+Inheriting from a Template Class with a FIXED type
+
+Sometimes the Parent is a template, but the Child decides to be specific. The Child is a regular class, but it "locks in" the Parent's type.
+
+template <typename T>
+class Parent {
+public:
+    T value;
+};
+
+// Child is NOT a template, it locks Parent to 'int'
+class Child : public Parent<int> {
+    // value is now specifically an int here
+};
+
+
+#include <iostream>
+using namespace std;
+
+// Template Base Class
+template <typename T>
+class Base {
+protected:
+    T val;
+public:
+    Base(T v) : val(v) {}
+};
+
+// Template Derived Class
+template <typename T>
+class Derived : public Base<T> { // Passing T up to Base
+public:
+    Derived(T v) : Base<T>(v) {}
+    
+    void display() {
+        // Note: In templates, we often use 'this->' to clarify 
+        // that 'val' comes from the inherited template
+        cout << "Value from Base: " << this->val << endl;
+    }
+};
+
+int main() {
+    Derived<double> obj(55.5);
+    obj.display();
+    return 0;
+}
+
+Note:What is Generic:-
+In English, "generic" means something that is not specific or doesn't have a "brand name."
+
+In C++, Generic Programming means writing code that focuses on the logic (the "how") rather than the data type (the "what").
+
+Exactly! You hit the nail on the head. Child : public Parent<int> is a regular class because the moment you specify <int>, the "blueprint" is used to create a solid, specific class. The "general" nature is gone.
+
+Now, let's tackle your excellent question: Why do we use the word "Generic"?
+The Meaning of "Generic"
+
+In English, "generic" means something that is not specific or doesn't have a "brand name."
+
+In C++, Generic Programming means writing code that focuses on the logic (the "how") rather than the data type (the "what").
+1. The "Kitchen Tool" Analogy
+
+Think of a Tongs (a kitchen tool).
+
+    You can use tongs to pick up a hot potato (int).
+
+    You can use the same tongs to pick up a salad (string).
+
+    You can use them to pick up an ice cube (float).
+
+The logic of "picking something up" is the same regardless of what the object is. The tongs are a Generic Tool.
+
+If the tongs only worked for potatoes, they would be a "Specific Tool." In C++, a template is that generic tool.
+2. The "Fill-in-the-Blanks" Analogy
+
+Imagine a legal contract (a template). It says: "I, [NAME], agree to pay [AMOUNT] to [RECEIVER]."
+
+    This contract is Generic. It doesn't have a specific person's name yet.
+
+    When you fill in "Lu" and "100 dollars," you have Specialized the contract.
+
+In C++:
+
+    The Generic part is the code using T.
+
+    The Specialized part is when the compiler sees <int> and replaces every T with int.
+
+#include <iostream>
+using namespace std;
+
+// A Generic Base Class (Abstract)
+template <typename T>
+class Shape {
+public:
+    // Pure virtual function makes this an Abstract Generic Class
+    virtual void display(T area) = 0; 
+};
+
+// A Generic Derived Class
+template <typename T>
+class Square : public Shape<T> {
+public:
+    // Overriding the generic function
+    void display(T area) override {
+        cout << "This Square has a generic area of: " << area << endl;
+    }
+};
+
+int main() {
+    // We create a Square for 'doubles'
+    Square<double> mySq;
+    mySq.display(25.5);
+
+    // We create a Square for 'integers'
+    Square<int> mySqInt;
+    mySqInt.display(100);
+
+    return 0;
+}

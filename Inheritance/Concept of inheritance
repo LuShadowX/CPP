@@ -1,0 +1,433 @@
+Defination:-Inheritance is a mechanism where a new class (the Derived or Child class) acquires the properties and behaviors of an existing class (the Base or Parent class).
+
+For example:-Imagine you are building a game. You have a class called Warrior and a class called Mage. Both have a name, health, and a level. Instead of writing that same code twice, we create a "Parent" class called Character and let the others inherit from it.
+
+Reason why we use this concept:-
+1:Reusability: Write code once, use it many times.
+2:Structure: It creates a logical "is-a" relationship (A Warrior is-a Character).
+
+Basic Syntax:-
+class Parent {
+    // Properties and methods of the parent
+};
+
+// 'Child' inherits from 'Parent'
+
+class Child : public Parent {
+    // Child's own unique properties and methods
+};
+
+Example:-
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Base Class (Parent)
+class Vehicle {
+public:
+    string brand = "Ford";
+    void honk() {
+        cout << "Tuut, tuut! \n";
+    }
+};
+
+// Derived Class (Child)
+class Car : public Vehicle {
+public:
+    string model = "Mustang";
+};
+
+int main() {
+    Car myCar;
+    myCar.honk(); // Car uses the method from Vehicle!
+    cout << myCar.brand + " " + myCar.model; // Car uses the attribute from Vehicle!
+    return 0;
+}
+Note:The difference bw accessing value with the help of (. operator) and the (-> arrow operator) is this:
+The correct equivalent to the arrow operator (->) is actually (*a).val.
+
+1. The Arrow Operator: a->val
+The arrow operator is "syntactic sugar." It is a shorthand used when you have a pointer to an object and you want to access a member inside that object.
+
+    Logic: "Go to the address stored in a, and find the member val inside it."
+
+    Manual Equivalent: (*a).val
+
+    Note: The parentheses in (*a).val are mandatory because the dot operator (.) has higher precedence than the dereference operator (*). Without them, *a.val would try to dereference a member called val instead of dereferencing a first.
+
+2. The Expression: *(a.val)
+
+This expression means something entirely different. It assumes that a is a direct object (not a pointer), and that a contains a member named val which is itself a pointer.
+
+    Logic: "Look inside the object a, find the pointer val, and then go to the address that val is pointing to."
+
+#include <iostream>
+
+struct Node {
+    int data;
+    int* ptr; // A pointer inside the struct
+};
+
+int main() {
+    int x = 100;
+    Node myNode;
+    myNode.data = 10;
+    myNode.ptr = &x;
+
+    Node* a = &myNode; // 'a' is a pointer to the struct
+
+    // 1. Using the Arrow Operator
+    std::cout << a->data << std::endl;    // Outputs 10
+    std::cout << (*a).data << std::endl;  // Outputs 10 (Same as above)
+
+    // 2. Using *(a.val) logic
+    // This looks at the object 'myNode', finds the pointer 'ptr', and dereferences it.
+    std::cout << *(myNode.ptr) << std::endl; // Outputs 100
+    
+    return 0;
+}
+
+Use a->val when a is a pointer.
+
+Use a.val when a is the actual object.
+
+*(a.val) is only used if val is a pointer stored inside the object a.
+
+Topic 2: Access Control (The Big Three)
+
+When you define members (variables or functions) inside a class, you have three levels of protection:
+1. public (The Open Door)
+
+Anything marked public is accessible from anywhere.
+
+    The Parent class can see it.
+
+    The Child class can see it.
+
+    The main() function (outside the class) can see it.
+
+2. private (The Vault)
+
+Anything marked private is only accessible within that specific class.
+
+    Crucial Logic: Even the Child class cannot touch the Parent's private members directly. If the Parent has a "private secret," the Child doesn't get to know it.
+
+3. protected (The Family Secret)
+
+This is the "special" one for inheritance.
+
+    protected members cannot be accessed from the outside (like main()).
+
+    HOWEVER, the Child class is allowed to access them. It’s like a secret passed down only to family members.
+
+#include <iostream>
+using namespace std;
+
+class Parent {
+public:
+    int publicVar = 1;
+protected:
+    int protectedVar = 2;
+private:
+    int privateVar = 3;
+};
+
+class Child : public Parent {
+public:
+    void display() {
+        cout << publicVar << endl;    // OK: It's public
+        cout << protectedVar << endl; // OK: Child can access protected
+        // cout << privateVar << endl; // ERROR: Child cannot see Parent's private
+    }
+};
+
+int main() {
+    Child obj;
+    cout << obj.publicVar << endl;    // OK: public is open to everyone
+    // cout << obj.protectedVar << endl; // ERROR: main() is not "family"
+    // cout << obj.privateVar << endl;   // ERROR: private is totally hidden
+    return 0;
+}
+
+
+Why do we need protected?
+
+If you make a variable private, your child classes can't use it, which makes inheritance difficult. If you make it public, anyone can change it, which is dangerous. protected is the perfect middle ground—it stays hidden from the world but stays alive within the family tree.
+
+
+Spot on! You nailed it. Using protected ensures the SavingsAccount can calculate interest using the balance, but someone in main() can't just set their balance to a billion dollars.
+
+Now, we are moving to a slightly "trippy" concept. Up until now, we’ve been looking at the Parent's "Keep Out" signs. Now we are going to look at the "Inheritance Mode"—which is how the Child decides to treat what it receives.
+Topic 3: Modes of Inheritance
+
+When you write class Child : public Parent, that word public is the "Mode." You can actually use public, protected, or private as the inheritance mode.
+
+Think of the Inheritance Mode as a filter. It can make the Parent's permissions more strict, but it can never make them less strict.
+The Rule of Thumb:
+
+    Public Inheritance (class Child : public Parent):
+
+        The "Standard" way.
+
+        Everything stays the same. Public stays public, protected stays protected.
+
+    Protected Inheritance (class Child : protected Parent):
+
+        Both Public and Protected members of the Parent become Protected in the Child.
+
+    Private Inheritance (class Child : private Parent):
+
+        Both Public and Protected members of the Parent become Private in the Child. (The family secret stops with this child).
+
+Parent's Access	Public Mode	Protected Mode	Private Mode
+Public	Stays Public	Becomes Protected	Becomes Private
+Protected	Stays Protected	Becomes Protected	Becomes Private
+Private	Hidden (No Access)	Hidden (No Access)	Hidden (No Access)
+
+
+class Engine {
+public:
+    void start() { cout << "Engine started"; }
+};
+
+// Private inheritance
+class Car : private Engine {
+public:
+    void drive() {
+        start(); // OK: Car can use start() because it's inside the class
+        cout << " and Car is moving";
+    }
+};
+
+int main() {
+    Car myCar;
+    myCar.drive(); // OK
+    // myCar.start(); // ERROR! start() became private inside Car.
+}
+
+Topic 4: Types of Inheritance
+
+C++ is very flexible. It allows you to build "family trees" in several ways. There are 5 main types:
+1. Single Inheritance
+
+The simplest form. One Parent (Base) and one Child (Derived).
+
+    Example: Device -> Phone.
+
+2. Multilevel Inheritance
+
+A chain of inheritance. A child becomes a parent for another class.
+
+    Example: Animal -> Dog -> Labrador.
+
+    Logic: Labrador inherits everything from Dog, and because Dog inherited from Animal, the Labrador gets everything from Animal too!
+
+3. Multiple Inheritance
+
+This is where C++ gets unique (Languages like Java don't allow this!). One Child has two or more Parents.
+
+    Example: A SmartPhone inherits from both Camera and Phone.
+
+    Syntax: class SmartPhone : public Camera, public Phone { ... };
+
+4. Hierarchical Inheritance
+
+One Parent has multiple Children.
+
+    Example: Shape is the parent; Circle, Square, and Triangle are all children.
+
+5. Hybrid (and the dreaded Diamond Problem)
+
+A mix of two or more of the types above.
+
+    Example: If you combine Multiple and Multilevel inheritance.
+
+    Warning: This can lead to the "Diamond Problem" (where a child gets two copies of the same grandparent). We will master that specifically if you want to go deeper later!
+
+    #include <iostream>
+using namespace std;
+
+class Mother {
+public:
+    void eyes() { cout << "Blue eyes" << endl; }
+};
+
+class Father {
+public:
+    void hair() { cout << "Curly hair" << endl; }
+};
+
+// Child inheriting from TWO parents
+class Child : public Mother, public Father {
+};
+
+int main() {
+    Child c;
+    c.eyes(); // From Mother
+    c.hair(); // From Father
+    return 0;
+}
+
+You are absolutely correct! Person -> Student -> TeachingAssistant is a perfect example of Multilevel Inheritance. It’s like a ladder where each step adds more specific features.
+
+Now, hold on tight, because we are getting into the "engine room" of C++. When you create an object of a Child class, how does it actually get built? Does the Child get created first, or the Parent?
+Topic 5: Constructors in Inheritance
+
+Think of building a house. You cannot build the second floor (the Child) without first building the foundation and the first floor (the Parent).
+The Execution Rule:
+
+    Constructors: Executed in order of derivation (Parent first, then Child).
+
+    Destructors: Executed in reverse order (Child first, then Parent).
+
+Why Parent First?
+
+The Child might depend on variables that exist in the Parent. If the Parent isn't "born" yet, the Child can't use those variables.
+How to pass values to the Parent?
+
+This is where students often get stuck. If the Parent's constructor needs an input (like a name), the Child must provide it using an Initialization List.
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Parent {
+public:
+    Parent(string msg) {
+        cout << "Parent Constructor: " << msg << endl;
+    }
+};
+
+class Child : public Parent {
+public:
+    // We use ': Parent(msg)' to pass data 'up' to the parent
+    Child(string msg, int val) : Parent(msg) {
+        cout << "Child Constructor: " << val << endl;
+    }
+};
+
+int main() {
+    Child obj("Hello from Dad", 101);
+    return 0;
+}
+Multiple Inheritance Order
+
+In Multiple Inheritance (class Child : public Father, public Mother), the constructors are called in the order they are listed in the class header.
+
+    In this case: Father first, then Mother, then Child.
+
+Topic 6: Function Overriding & Virtual Functions
+1. What is Function Overriding?
+
+Imagine the Parent has a method called makeSound().
+
+    The Animal (Parent) class says: "Generic Sound."
+
+    The Dog (Child) class also has a method called makeSound(), but it says: "Woof!"
+
+When the Child provides its own version of a function that already exists in the Parent, it overrides the Parent's version.
+class Animal {
+public:
+    void makeSound() { cout << "Generic sound"; }
+};
+
+class Dog : public Animal {
+public:
+    void makeSound() { cout << "Woof!"; } // Overriding!
+};
+
+2. The Problem (The Pointer Trap)
+
+In C++, a Parent pointer can point to a Child object. This is very common in big systems. But look what happens:
+Animal* ptr = new Dog(); 
+ptr->makeSound(); // This will print "Generic sound" !!
+Wait, what? Even though the object is a Dog, C++ looks at the pointer type (Animal) and calls the Parent's version. This is called Static Binding.
+The Solution: virtual functions
+
+If we want C++ to be smart enough to look at the actual object (the Dog) instead of just the pointer, we must mark the function as virtual in the Parent class.
+
+This enables Dynamic Binding (Late Binding).
+class Animal {
+public:
+    virtual void makeSound() { // Added 'virtual' keyword
+        cout << "Generic sound";
+    }
+};
+
+class Dog : public Animal {
+public:
+    void makeSound() override { // 'override' is good practice to show intent
+        cout << "Woof!";
+    }
+};
+
+int main() {
+    Animal* ptr = new Dog();
+    ptr->makeSound(); // NOW it prints "Woof!"
+}
+Why is this so important?
+
+It allows you to create a list of different objects (Dogs, Cats, Birds) and treat them all as "Animals," yet they all behave in their own unique way when you call makeSound(). This is the definition of Polymorphism (Many Forms).
+
+The "Pure Virtual" Function (Abstract Classes)
+
+Sometimes, a Parent is so general that it shouldn't have a sound. What sound does a "Shape" make? None.
+
+In that case, we use a Pure Virtual Function: virtual void makeSound() = 0;
+
+If a class has even one pure virtual function, it becomes an Abstract Class. You cannot create an object of an abstract class. It only exists to be a template for its children.
+
+
+The Diamond Problem
+
+The Diamond Problem occurs in Multiple Inheritance when a class inherits from two parents, and both of those parents inherit from the same "Grandparent" class.
+
+The Conflict
+
+Imagine this hierarchy:
+
+    Class A (Grandparent): Has a variable int data.
+
+    Class B (Parent 1): Inherits from A.
+
+    Class C (Parent 2): Inherits from A.
+
+    Class D (Child): Inherits from both B and C.
+
+The Logic Trap: When D is created, it gets a copy of A's features from B, and another copy of A's features from C.
+
+If you try to access data inside class D, the compiler gets a headache. It says: "Wait, do you want the data that came through B, or the data that came through C?" This is called Ambiguity.
+
+The Solution: virtual Inheritance
+
+To solve this, we use the virtual keyword when the parents inherit from the grandparent. This tells C++, "Hey, only keep ONE shared copy of the grandparent for the entire family tree."
+
+#include <iostream>
+using namespace std;
+
+class A {
+public:
+    int data = 100;
+};
+
+// Use 'virtual' here!
+class B : virtual public A { };
+
+// Use 'virtual' here!
+class C : virtual public A { };
+
+// Now D only has ONE copy of A
+class D : public B, public C {
+public:
+    void show() {
+        cout << "Data: " << data; // No ambiguity anymore!
+    }
+};
+
+int main() {
+    D obj;
+    obj.show();
+    return 0;
+}
+
+Master's Tip: By adding virtual, you ensure that no matter how many paths lead back to Class A, there is only ever one instance of A's data in memory for that object.

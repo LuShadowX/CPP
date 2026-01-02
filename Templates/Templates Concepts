@@ -1,0 +1,80 @@
+Why do we need Templates? (The Problem)
+Imagine you want to write a function that finds the maximum of two numbers.
+
+    You write one for int.
+
+    Then you realize you need one for float.
+
+    Then you need one for double.
+
+    You end up writing the exact same logic three times just because the data type is different. This is a waste of time!
+
+Templates allow you to write a "Blueprint" where the data type is a variable (usually called T).
+Basic Syntax:
+template <typename T>
+T myMax(T x, T y) {
+    return (x > y) ? x : y;
+}
+In this code, T can be anything—an int, a string, or even a custom class! C++ will automatically "generate" the code for you when you call it.
+
+Phase 2: The Power of Templates
+A Class Template is like a stencil. You don't create a class for a specific data type; instead, you create a class that can work with any data type passed to it as a parameter.
+The "Container" Example
+
+Think of a "Box." A box can hold an int, a float, or even a string. Without templates, you'd need IntBox, FloatBox, and StringBox. With templates, you just need Box<T>.
+#include <iostream>
+using namespace std;
+
+// T is our generic data type
+template <typename T>
+class Box {
+private:
+    T content;
+public:
+    Box(T item) : content(item) {}
+    
+    void showContent() {
+        cout << "The box contains: " << content << endl;
+    }
+};
+
+int main() {
+    // We specify the type in angle brackets < >
+    Box<int> intBox(123);
+    Box<string> stringBox("Masterpiece");
+
+    intBox.showContent();    // Works for int
+    stringBox.showContent(); // Works for string
+    
+    return 0;
+}
+Topic 2: Class Templates with Multiple Parameters
+
+You are not limited to just one generic type T. You can have as many as you want! This is how things like std::map work in C++ (where you have a Key and a Value).
+template <typename T1, typename T2>
+class Pair {
+public:
+    T1 first;
+    T2 second;
+    Pair(T1 a, T2 b) : first(a), second(b) {}
+};
+
+// Usage:
+Pair<string, int> player("Lu", 99);
+
+Topic 3: Defining Methods Outside the Template
+
+This is a common "Gotcha" in exams. If you want to define a template class method outside the class body, the syntax gets a bit spicy. You have to redeclare the template every time.
+template <typename T>
+class Calculator {
+public:
+    T add(T a, T b);
+};
+
+// Outside definition
+template <typename T>
+T Calculator<T>::add(T a, T b) {
+    return a + b;
+}
+
+
